@@ -253,3 +253,10 @@ input:focus, textarea:focus, select:focus {
   .form-grid { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
 }
+
+/* next.js renders nav items and the logo as links */
+a.brand, a.nav-link { text-decoration: none; color: inherit; }
+a.nav-link { color: var(--muted); }
+a.nav-link.active { color: var(--primary); }
+
+.loading { padding: 3rem 1rem; text-align: center; color: var(--muted); }

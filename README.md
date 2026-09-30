@@ -1,33 +1,49 @@
 # Secure Notes Frontend
 
-Frontend for the Secure Notes API (backend repo: `backend_interview`). It covers register/login, notes CRUD, and admin user management (users table plus everyone's notes).
+Next.js frontend for the Secure Notes API (backend repo: [secure-notes-backend](https://github.com/Tafsimul-Tanzid/secure-notes-backend)).
 
-It's plain HTML, CSS and JavaScript (`index.html`, `styles.css`, `app.js`, `config.js`), written by hand with no framework or UI template. There's no build step and no dependencies.
+It covers login/register, creating and editing notes, and for admins, everyone's notes plus a users page to add, edit and delete accounts. The styling is plain CSS in `app/globals.css`, written by hand with no UI library or template.
+
+Stack: Next.js 16 (App Router), React 19, JavaScript.
 
 ## Run locally
 
-Start the backend first (it runs on `http://localhost:3000`), then serve this folder on port 5173:
+Start the backend first. It runs on `http://localhost:3000`. Then:
 
 ```bash
-python3 -m http.server 5173
-# or: npx serve -l 5173 .
+npm install
+npm run dev        # http://localhost:5173
 ```
 
-Open http://localhost:5173. On localhost the page talks to `http://localhost:3000` automatically.
+The frontend runs on port 5173 because the backend already uses 3000. The backend's default `CORS_ORIGIN` allows `http://localhost:5173`.
 
-Opening `index.html` directly as a file won't work, because the browser blocks the API calls. It has to be served over http.
+The API URL comes from `NEXT_PUBLIC_API_URL` and defaults to `http://localhost:3000`. To point it somewhere else locally, copy `.env.example` to `.env.local` and change the URL.
 
-## Backend URL
+## How it's put together
 
-`config.js` picks the API URL. After deploying the backend, replace `https://YOUR-BACKEND.onrender.com` there with the real Render URL.
+```
+app/
+  layout.js              wraps everything in the auth + toast providers
+  page.js                redirects to /notes or /login
+  login/page.js          login and register tabs
+  (dashboard)/layout.js  requires a logged in user, shows the navbar
+  (dashboard)/notes      notes grid, create/edit/delete
+  (dashboard)/users      admin only, users table and form
+components/              Navbar, Pager
+lib/
+  api.js                 fetch wrapper (adds the bearer token, handles errors)
+  auth.js                current user, login/register/logout
+  toast.js               popup messages
+  usePagedList.js        loads a paginated endpoint (?page=&limit=)
+```
+
+The JWT is kept in localStorage and sent as `Authorization: Bearer <token>`. Logging out just drops the token, since JWTs are stateless. The route guards only decide what the UI shows. The API enforces the real permissions on every request.
 
 ## Deploy (Vercel)
 
-1. Push this repo to GitHub.
-2. On Vercel, go to Add New > Project and import the repo.
-   - Framework preset: Other
-   - No build command or output directory, since it's just static files.
-3. Deploy, then copy the URL (e.g. `https://notes-frontend.vercel.app`).
-4. On Render, set the backend's `CORS_ORIGIN` to that URL (no trailing slash). Otherwise the browser will block the requests.
+1. On Vercel, go to Add New > Project and import this repo. It detects Next.js by itself.
+2. Before deploying, add an environment variable: `NEXT_PUBLIC_API_URL` = your Render backend URL, e.g. `https://secure-notes-backend.onrender.com` (no trailing slash).
+3. Deploy, then copy the site URL.
+4. On Render, set the backend's `CORS_ORIGIN` to that URL. Otherwise the browser blocks the requests.
 
-Netlify works the same way: add a new site from Git, leave the build command empty, and set the publish directory to `.`.
+`NEXT_PUBLIC_*` variables are baked in at build time. If you change the API URL later, redeploy on Vercel.
