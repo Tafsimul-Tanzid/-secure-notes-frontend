@@ -17,7 +17,7 @@ npm run dev        # http://localhost:5173
 
 The frontend runs on port 5173 because the backend already uses 3000. The backend's default `CORS_ORIGIN` allows `http://localhost:5173`.
 
-The API URL comes from `NEXT_PUBLIC_API_URL` and defaults to `http://localhost:3000`. To point it somewhere else locally, copy `.env.example` to `.env.local` and change the URL.
+The API URL comes from `NEXT_PUBLIC_API_URL`. In dev it defaults to `http://localhost:3000`, and production builds read it from `.env.production`. To point it somewhere else locally, copy `.env.example` to `.env.local` and change the URL.
 
 ## How it's put together
 
@@ -42,7 +42,7 @@ The JWT is kept in localStorage and sent as `Authorization: Bearer <token>`. Log
 ## Deploy (Vercel)
 
 1. On Vercel, go to Add New > Project and import this repo. It detects Next.js by itself.
-2. Before deploying, add an environment variable: `NEXT_PUBLIC_API_URL` = your Render backend URL, e.g. `https://secure-notes-backend.onrender.com` (no trailing slash).
+2. The backend URL for production builds is in `.env.production` (`NEXT_PUBLIC_API_URL`). Change it there if your Render URL is different. You can also override it with an environment variable in the Vercel project settings.
 3. Deploy, then copy the site URL.
 4. On Render, set the backend's `CORS_ORIGIN` to that URL. Otherwise the browser blocks the requests.
 
